@@ -1,41 +1,42 @@
 sqlmap
 ==
 
-sqlmap is an open source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws and taking over of database servers. It comes with a powerful detection engine, many niche features for the ultimate penetration tester and a broad range of switches lasting from database fingerprinting, over data fetching from the database, to accessing the underlying file system and executing commands on the operating system via out-of-band connections.
+sqlmap 是一个开源的自动化SQL注入检测及提权工具。sqlmap拥有强劲的检测引擎、为专业渗透师提供的高级特性，也有从数据库识别、数据拉取、文件系统操作到系统命令执行等多方面的功能及选项。
 
-Screenshots
+截图
 ----
 
-![Screenshot](https://raw.github.com/wiki/sqlmapproject/sqlmap/images/sqlmap_screenshot.png)
+![截图](https://raw.github.com/wiki/sqlmapproject/sqlmap/images/sqlmap_screenshot.png)
 
-You can visit the [collection of screenshots](https://github.com/sqlmapproject/sqlmap/wiki/Screenshots) demonstrating some of features on the wiki.
+可以访问[截图集](https://github.com/sqlmapproject/sqlmap/wiki/Screenshots) 查看wiki上的一些功能演示。
 
-Installation
+安装
 ----
 
-You can download the latest tarball by clicking [here](https://github.com/sqlmapproject/sqlmap/tarball/master) or latest zipball by clicking  [here](https://github.com/sqlmapproject/sqlmap/zipball/master).
+你可以点击[这里](https://github.com/sqlmapproject/sqlmap/tarball/master)下载最新的tar压缩包，或者点击[这里](https://github.com/sqlmapproject/sqlmap/zipball/master)下载最新的zip压缩包。
 
-Preferably, you can download sqlmap by cloning the [Git](https://github.com/sqlmapproject/sqlmap) repository:
+当人，最好的选择是克隆 [Git](https://github.com/sqlmapproject/sqlmap) repository:
 
     git clone https://github.com/sqlmapproject/sqlmap.git sqlmap-dev
 
-sqlmap works out of the box with [Python](http://www.python.org/download/) version **2.6.x** and **2.7.x** on any platform.
+sqlmap 可以运行于任何系统上的 [Python](http://www.python.org/download/) **2.6.x** 和 **2.7.x** 。
 
-Usage
+用法
 ----
 
-To get a list of basic options and switches use:
+显示基本功能选项列表：
 
     python sqlmap.py -h
 
-To get a list of all options and switches use:
+显示全部功能选项列表：
 
     python sqlmap.py -hh
 
-You can find a sample run [here](https://gist.github.com/stamparm/5335217).
-To get an overview of sqlmap capabilities, list of supported features and description of all options and switches, along with examples, you are advised to consult the [user's manual](https://github.com/sqlmapproject/sqlmap/wiki).
 
-Links
+在 [这里](https://gist.github.com/stamparm/5335217) 可以找到一个运行示例。
+建议通过阅读[user's manual](https://github.com/sqlmapproject/sqlmap/wiki)来获取sqlmap功能概览、支持的特性列表、附带示例的选项说明。
+
+链接
 ----
 
 * Homepage: http://sqlmap.org
@@ -50,8 +51,3 @@ Links
 * Twitter: [@sqlmap](https://twitter.com/sqlmap)
 * Demos: [#1](http://www.youtube.com/user/inquisb/videos) and [#2](http://www.youtube.com/user/stamparm/videos)
 * Screenshots: https://github.com/sqlmapproject/sqlmap/wiki/Screenshots
-
-Translations
-----
-
-* [Portuguese](https://github.com/sqlmapproject/sqlmap/blob/master/doc/translations/README-pt-BR.md)
