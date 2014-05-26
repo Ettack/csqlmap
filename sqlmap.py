@@ -81,8 +81,8 @@ def main():
 
         banner()
 
-        dataToStdout("[!] legal disclaimer: %s\n\n" % LEGAL_DISCLAIMER, forceOutput=True)
-        dataToStdout("[*] starting at %s\n\n" % time.strftime("%X"), forceOutput=True)
+        dataToStdout(u"[!] 免责声明: %s\n\n" % LEGAL_DISCLAIMER, forceOutput=True)
+        dataToStdout(u"[*] 开始于 %s\n\n" % time.strftime("%X"), forceOutput=True)
 
         if ".sqlmap" in paths.SQLMAP_OUTPUT_PATH:
             warnMsg = "using '%s' as the output directory" % paths.SQLMAP_OUTPUT_PATH
@@ -132,7 +132,7 @@ def main():
         dataToStdout(setColor(traceback.format_exc()))
 
     finally:
-        dataToStdout("\n[*] shutting down at %s\n\n" % time.strftime("%X"), forceOutput=True)
+        dataToStdout(u"\n[*] 结束于 %s\n\n" % time.strftime("%X"), forceOutput=True)
 
         kb.threadContinue = False
         kb.threadException = True
