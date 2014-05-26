@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import sys, glob
 sys.path.insert(0, '..')
 from chardet.universaldetector import UniversalDetector

@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 #! /usr/bin/env python
 
 # Runs pylint on all python scripts found in a directory tree

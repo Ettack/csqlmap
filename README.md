@@ -57,7 +57,7 @@ sqlmap 可以运行于任何系统上的 [Python](http://www.python.org/download
     python sqlmap.py -hh
 
 
-在 [这里](https://gist.github.com/stamparm/5335217) 可以找到一个运行示例。
+在 [这里](https://gist.github.com/stamparm/5335217) 可以找到运行示例。
 建议通过阅读[user's manual](https://github.com/sqlmapproject/sqlmap/wiki)来获取sqlmap功能概览、支持的特性列表、附带示例的选项说明。
 
 链接

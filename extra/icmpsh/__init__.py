@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 #!/usr/bin/env python
 #
 #  icmpsh - simple icmp command shell (port of icmpsh-m.pl written in

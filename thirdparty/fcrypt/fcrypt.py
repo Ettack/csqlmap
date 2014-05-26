@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 # fcrypt.py
 
 """Unix crypt(3) password hash algorithm.
