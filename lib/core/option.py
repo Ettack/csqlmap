@@ -183,14 +183,13 @@ def _urllib2Opener():
 
     # Reference: http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html
     if conf.keepAlive:
-        warnMsg = "persistent HTTP(s) connections, Keep-Alive, has "
-        warnMsg += "been disabled because of its incompatibility "
+        warnMsg = u"由于与"
 
         if conf.proxy:
-            warnMsg += "with HTTP(s) proxy"
+            warnMsg += u"HTTP(s) 代理不兼容，HTTP(s)持久连接(Keep-Alive)已被禁用"
             logger.warn(warnMsg)
         elif conf.authType:
-            warnMsg += "with authentication methods"
+            warnMsg += u"身份验证功能不兼容，HTTP(s)持久连接(Keep-Alive)已被禁用"
             logger.warn(warnMsg)
         else:
             handlers.append(keepAliveHandler)
@@ -220,9 +219,9 @@ def _feedTargetsDict(reqFile, addedTargetUrls):
                 continue
 
             if method.upper() == HTTPMETHOD.POST:
-                warnMsg = "POST requests from WebScarab logs aren't supported "
-                warnMsg += "as their body content is stored in separate files. "
-                warnMsg += "Nevertheless you can use -r to load them individually."
+                warnMsg = u"由于WebScarab的将请求内容分段存储在多个文件中，"
+                warnMsg += u"无法从中获取POST请求，"
+                warnMsg += u"不过可以使用-r选项来分别加载它们"
                 logger.warning(warnMsg)
                 continue
 
@@ -354,7 +353,7 @@ def _feedTargetsDict(reqFile, addedTargetUrls):
                     port = port or "443"
 
                 if not host:
-                    errMsg = "invalid format of a request file"
+                    errMsg = u"无效的请求文件格式"
                     raise SqlmapSyntaxException, errMsg
 
                 if not url.startswith("http"):
@@ -378,8 +377,7 @@ def _feedTargetsDict(reqFile, addedTargetUrls):
     _parseWebScarabLog(content)
 
     if not addedTargetUrls:
-        errMsg = "unable to find usable request(s) "
-        errMsg += "in provided file ('%s')" % reqFile
+        errMsg = u"在提供的文件 ('%s') 无法找到有效的请求" % reqFile
         raise SqlmapGenericException(errMsg)
 
 def _loadQueries():
@@ -430,7 +428,7 @@ def _setMultipleTargets():
     logger.debug(debugMsg)
 
     if not os.path.exists(conf.logFile):
-        errMsg = "the specified list of targets does not exist"
+        errMsg = u"指定的目标列表不存在"
         raise SqlmapFilePathException(errMsg)
 
     if os.path.isfile(conf.logFile):
@@ -447,8 +445,8 @@ def _setMultipleTargets():
             _feedTargetsDict(os.path.join(conf.logFile, reqFile), addedTargetUrls)
 
     else:
-        errMsg = "the specified list of targets is not a file "
-        errMsg += "nor a directory"
+        errMsg = u"指定的目标列表既非文件，"
+        errMsg += u"亦非目录"
         raise SqlmapFilePathException(errMsg)
 
     updatedTargetsCount = len(kb.targets)
@@ -495,8 +493,8 @@ def _setRequestFromFile():
     logger.info(infoMsg)
 
     if not os.path.isfile(conf.requestFile):
-        errMsg = "the specified HTTP request file "
-        errMsg += "does not exist"
+        errMsg = u"指定的HTTP请求文件"
+        errMsg += u"不存在"
         raise SqlmapFilePathException(errMsg)
 
     _feedTargetsDict(conf.requestFile, addedTargetUrls)
@@ -518,7 +516,7 @@ def _setCrawler():
                     status = "%d/%d links visited (%d%%)" % (i + 1, len(targets), round(100.0 * (i + 1) / len(targets)))
                     dataToStdout("\r[%s] [INFO] %s" % (time.strftime("%X"), status), True)
             except Exception, ex:
-                errMsg = "problem occurred while crawling at '%s' ('%s')" % (target, ex)
+                errMsg = u"当爬行到 '%s' 时遇到问题 ('%s')" % (target, ex)
                 logger.error(errMsg)
 
 def _setGoogleDorking():
@@ -545,9 +543,9 @@ def _setGoogleDorking():
     # Reference: http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html
     if conf.keepAlive:
         if conf.proxy:
-            warnMsg = "persistent HTTP(s) connections, Keep-Alive, has "
-            warnMsg += "been disabled because of its incompatibility "
-            warnMsg += "with HTTP(s) proxy"
+            warnMsg = u"由于无法与HTTP(s)代理兼容，"
+            warnMsg += u"持久HTTP(s)连接(Keep-Alive)"
+            warnMsg += u"已被禁用"
             logger.warn(warnMsg)
         else:
             handlers.append(keepAliveHandler)
@@ -559,8 +557,8 @@ def _setGoogleDorking():
         links = googleObj.search(conf.googleDork)
 
         if not links:
-            errMsg = "unable to find results for your "
-            errMsg += "Google dork expression"
+            errMsg = u"无法从指定的 Google dork 中"
+            errMsg += u"搜寻到结果"
             raise SqlmapGenericException(errMsg)
 
         for link in links:
@@ -569,7 +567,7 @@ def _setGoogleDorking():
                 kb.targets.add((link, conf.method, conf.data, conf.cookie))
             elif re.search(URI_INJECTABLE_REGEX, link, re.I):
                 if kb.data.onlyGETs is None and conf.data is None:
-                    message = "do you want to scan only results containing GET parameters? [Y/n] "
+                    message = u"是否仅扫描包含GET参数的请求? [Y/n] "
                     test = readInput(message, default="Y")
                     kb.data.onlyGETs = test.lower() != 'n'
                 if not kb.data.onlyGETs:
@@ -594,10 +592,10 @@ def _setGoogleDorking():
             break
 
         else:
-            message = "sqlmap got %d results " % len(links)
-            message += "for your Google dork expression, but none of them "
-            message += "have GET parameters to test for SQL injection. "
-            message += "Do you want to skip to the next result page? [Y/n]"
+            message = u"sqlmap 从指定的 Google dork 获取到 %d 个结果，" % len(links)
+            message += u"但是由于都不包含GET参数，"
+            message += u"无法进行SQL注入测试。"
+            message += u"是否跳到下一个结果页? [Y/n]"
             test = readInput(message, default="Y")
 
             if test[0] in ("n", "N"):
@@ -615,8 +613,8 @@ def _setBulkMultipleTargets():
     logger.info(infoMsg)
 
     if not os.path.isfile(conf.bulkFile):
-        errMsg = "the specified bulk file "
-        errMsg += "does not exist"
+        errMsg = u"指定的批量目标文件"
+        errMsg += u"不存在"
         raise SqlmapFilePathException(errMsg)
 
     for line in getFileItems(conf.bulkFile):
@@ -648,7 +646,7 @@ def _findPageForms():
                     status = '%d/%d links visited (%d%%)' % (i + 1, len(targets), round(100.0 * (i + 1) / len(targets)))
                     dataToStdout("\r[%s] [INFO] %s" % (time.strftime("%X"), status), True)
             except Exception, ex:
-                errMsg = "problem occurred while searching for forms at '%s' ('%s')" % (target, ex)
+                errMsg = u"当在 '%s' 搜索表单时遇到问题 ('%s')" % (target, ex)
                 logger.error(errMsg)
 
 def _setDBMSAuthentication():
@@ -666,8 +664,8 @@ def _setDBMSAuthentication():
     match = re.search("^(.+?):(.*?)$", conf.dbmsCred)
 
     if not match:
-        errMsg = "DBMS authentication credentials value must be in format "
-        errMsg += "username:password"
+        errMsg = u"DBMS 身份验证信息的格式必须为 "
+        errMsg += u"username:password"
         raise SqlmapSyntaxException(errMsg)
 
     conf.dbmsUsername = match.group(1)
@@ -686,10 +684,10 @@ def _setMetasploit():
         try:
             import win32file
         except ImportError:
-            errMsg = "sqlmap requires third-party module 'pywin32' "
-            errMsg += "in order to use Metasploit functionalities on "
-            errMsg += "Windows. You can download it from "
-            errMsg += "'http://sourceforge.net/projects/pywin32/files/pywin32/'"
+            errMsg = u"sqlmap 需要第三方模块 'pywin32'，"
+            errMsg += u"以在Windows上调用Metasploit的功能，"
+            errMsg += u"可以在此下载："
+            errMsg += u"'http://sourceforge.net/projects/pywin32/files/pywin32/'"
             raise SqlmapMissingDependence(errMsg)
 
         if not conf.msfPath:
@@ -714,10 +712,9 @@ def _setMetasploit():
         isAdmin = runningAsAdmin()
 
         if not isAdmin:
-            errMsg = "you need to run sqlmap as an administrator "
-            errMsg += "if you want to perform a SMB relay attack because "
-            errMsg += "it will need to listen on a user-specified SMB "
-            errMsg += "TCP port for incoming connection attempts"
+            errMsg = u"若想进行SMB重放攻击，"
+            errMsg += u"请以管理员身份运行sqlmap，"
+            errMsg += u"从而获得获得监听用户指定的SMB TCP端口的权限"
             raise SqlmapMissingPrivileges(errMsg)
 
     if conf.msfPath:
@@ -732,21 +729,20 @@ def _setMetasploit():
             debugMsg += "'%s' is valid" % conf.msfPath
             logger.debug(debugMsg)
         else:
-            warnMsg = "the provided Metasploit Framework path "
-            warnMsg += "'%s' is not valid. The cause could " % conf.msfPath
-            warnMsg += "be that the path does not exists or that one "
-            warnMsg += "or more of the needed Metasploit executables "
-            warnMsg += "within msfcli, msfconsole, msfencode and "
-            warnMsg += "msfpayload do not exist"
+            warnMsg = u"指定的 Metasploit Framework 路径 "
+            warnMsg += u"'%s' 无效. 原因可能是 " % conf.msfPath
+            warnMsg += u"该路径不存在"
+            warnMsg += u"，或所需的 Metasploit 可执行文件"
+            warnMsg += u" msfcli, msfconsole, msfencode 或 "
+            warnMsg += u"msfpayload 不存在"
             logger.warn(warnMsg)
     else:
-        warnMsg = "you did not provide the local path where Metasploit "
-        warnMsg += "Framework is installed"
+        warnMsg = u"未提供 Metasploit Framework 的本地安装路径"
         logger.warn(warnMsg)
 
     if not msfEnvPathExists:
-        warnMsg = "sqlmap is going to look for Metasploit Framework "
-        warnMsg += "installation inside the environment path(s)"
+        warnMsg = u"sqlmap 将在环境路径中搜寻 Metasploit Framework "
+        warnMsg += u"的安装路径"
         logger.warn(warnMsg)
 
         envPaths = os.environ.get("PATH", "").split(";" if IS_WIN else ":")
@@ -765,8 +761,8 @@ def _setMetasploit():
                 break
 
     if not msfEnvPathExists:
-        errMsg = "unable to locate Metasploit Framework installation. "
-        errMsg += "You can get it at 'http://www.metasploit.com/download/'"
+        errMsg = u"无法找到已安装的 Metasploit Framework,"
+        errMsg += u"可从 'http://www.metasploit.com/download/' 获取"
         raise SqlmapFilePathException(errMsg)
 
 def _setWriteFile():
@@ -777,12 +773,11 @@ def _setWriteFile():
     logger.debug(debugMsg)
 
     if not os.path.exists(conf.wFile):
-        errMsg = "the provided local file '%s' does not exist" % conf.wFile
+        errMsg = u"所提供的本地文件 '%s' 不存在" % conf.wFile
         raise SqlmapFilePathException(errMsg)
 
     if not conf.dFile:
-        errMsg = "you did not provide the back-end DBMS absolute path "
-        errMsg += "where you want to write the local file '%s'" % conf.wFile
+        errMsg = u"未提供本地文件 '%s' 的写入路径(远端系统上的绝对路径)" % conf.wFile
         raise SqlmapMissingMandatoryOptionException(errMsg)
 
     conf.wFileType = getFileType(conf.wFile)
@@ -796,12 +791,12 @@ def _setOS():
         return
 
     if conf.os.lower() not in SUPPORTED_OS:
-        errMsg = "you provided an unsupported back-end DBMS operating "
-        errMsg += "system. The supported DBMS operating systems for OS "
-        errMsg += "and file system access are %s. " % ', '.join([o.capitalize() for o in SUPPORTED_OS])
-        errMsg += "If you do not know the back-end DBMS underlying OS, "
-        errMsg += "do not provide it and sqlmap will fingerprint it for "
-        errMsg += "you."
+        errMsg = u"不支持所指定的操作系统，"
+        errMsg += u"支持的操作系统"
+        errMsg += u"和文件系统有 %s. " % ', '.join([o.capitalize() for o in SUPPORTED_OS])
+        errMsg += u"如果你不知道运行后端数据库管理系统(back-end DBMS)的操作系统，"
+        errMsg += u"不要指定该选项，"
+        errMsg += u"sqlmap将自动识别"
         raise SqlmapUnsupportedDBMSException(errMsg)
 
     debugMsg = "forcing back-end DBMS operating system to user defined "
@@ -819,9 +814,8 @@ def _setTechnique():
 
         for letter in conf.tech.upper():
             if letter not in validLetters:
-                errMsg = "value for --technique must be a string composed "
-                errMsg += "by the letters %s. Refer to the " % ", ".join(validLetters)
-                errMsg += "user's manual for details"
+                errMsg = u"选项 --technique 的值必须为由"
+                errMsg += u"字母 %s 组成的字串. 详情参考用户手册 " % ", ".join(validLetters)
                 raise SqlmapSyntaxException(errMsg)
 
             for validTech, validInt in validTechniques:
@@ -850,10 +844,10 @@ def _setDBMS():
         Backend.setVersion(regex.group(2))
 
     if conf.dbms not in SUPPORTED_DBMS:
-        errMsg = "you provided an unsupported back-end database management "
-        errMsg += "system. The supported DBMS are %s. " % ', '.join([_ for _ in DBMS_DICT])
-        errMsg += "If you do not know the back-end DBMS, do not provide "
-        errMsg += "it and sqlmap will fingerprint it for you."
+        errMsg = u"不支持指定的的后端数据库管理系统,"
+        errMsg += u"所支持的DBMS有 %s. " % ', '.join([_ for _ in DBMS_DICT])
+        errMsg += u"如果你不知道后端DBMS，"
+        errMsg += u"不要指定该选项，sqlmap 将自动识别"
         raise SqlmapUnsupportedDBMSException(errMsg)
 
     for aliases in (MSSQL_ALIASES, MYSQL_ALIASES, PGSQL_ALIASES, ORACLE_ALIASES, \
@@ -887,11 +881,11 @@ def _setTamperingFunctions():
                 tfile = os.path.join(paths.SQLMAP_TAMPER_PATH, tfile if tfile.endswith('.py') else "%s.py" % tfile)
 
             elif not os.path.exists(tfile):
-                errMsg = "tamper script '%s' does not exist" % tfile
+                errMsg = u"tamper 脚本 '%s' 不存在" % tfile
                 raise SqlmapFilePathException(errMsg)
 
             elif not tfile.endswith('.py'):
-                errMsg = "tamper script '%s' should have an extension '.py'" % tfile
+                errMsg = u"tamper 脚本 '%s' 的后缀应为 '.py'" % tfile
                 raise SqlmapSyntaxException(errMsg)
 
             dirname, filename = os.path.split(tfile)
@@ -901,8 +895,7 @@ def _setTamperingFunctions():
             logger.info(infoMsg)
 
             if not os.path.exists(os.path.join(dirname, '__init__.py')):
-                errMsg = "make sure that there is an empty file '__init__.py' "
-                errMsg += "inside of tamper scripts directory '%s'" % dirname
+                errMsg = u"请确保 tamper 脚本目录 '%s' 中有一个名为 '__init__.py' 的空文件" % dirname
                 raise SqlmapGenericException(errMsg)
 
             if dirname not in sys.path:
@@ -911,7 +904,7 @@ def _setTamperingFunctions():
             try:
                 module = __import__(filename[:-3])
             except ImportError, msg:
-                raise SqlmapSyntaxException("cannot import tamper script '%s' (%s)" % (filename[:-3], msg))
+                raise SqlmapSyntaxException(u"无法加载 tamper 脚本 '%s' (%s)" % (filename[:-3], msg))
 
             priority = PRIORITY.NORMAL if not hasattr(module, '__priority__') else module.__priority__
 
@@ -922,9 +915,8 @@ def _setTamperingFunctions():
                     function.func_name = module.__name__
 
                     if check_priority and priority > last_priority:
-                        message = "it seems that you might have mixed "
-                        message += "the order of tamper scripts. "
-                        message += "Do you want to auto resolve this? [Y/n/q] "
+                        message = u"看似 tamper 脚本的顺序被搅乱，"
+                        message += u"是否自动调整? [Y/n/q] "
                         test = readInput(message, default="Y")
 
                         if not test or test[0] in ("y", "Y"):
@@ -944,8 +936,7 @@ def _setTamperingFunctions():
                     function()
 
             if not found:
-                errMsg = "missing function 'tamper(payload, **kwargs)' "
-                errMsg += "in tamper script '%s'" % tfile
+                errMsg = u"tamper 脚本 '%s' 中缺少函数 'tamper(payload, **kwargs)'" % tfile
                 raise SqlmapGenericException(errMsg)
 
         if resolve_priorities and priorities:
@@ -977,12 +968,11 @@ def _setWafFunctions():
             try:
                 module = __import__(filename[:-3])
             except ImportError, msg:
-                raise SqlmapSyntaxException("cannot import WAF script '%s' (%s)" % (filename[:-3], msg))
+                raise SqlmapSyntaxException(u"无法加载WAF脚本 '%s' (%s)" % (filename[:-3], msg))
 
             _ = dict(inspect.getmembers(module))
             if "detect" not in _:
-                errMsg = "missing function 'detect(page, headers, code)' "
-                errMsg += "in WAF script '%s'" % found
+                errMsg = u"在 WAF 脚本 '%s' 中缺少函数 'detect(page, headers, code)' " % found
                 raise SqlmapGenericException(errMsg)
             else:
                 kb.wafFunctions.append((_["detect"], _.get("__product__", filename[:-3])))
@@ -1050,14 +1040,14 @@ def _setHTTPProxy():
             pass  # drops into the next check block
 
     if not all((scheme, hasattr(PROXY_TYPE, scheme), hostname, port)):
-        errMsg = "proxy value must be in format '(%s)://address:port'" % "|".join(_[0].lower() for _ in getPublicTypeMembers(PROXY_TYPE))
+        errMsg = u"代理地址格式必须为 '(%s)://address:port'" % "|".join(_[0].lower() for _ in getPublicTypeMembers(PROXY_TYPE))
         raise SqlmapSyntaxException(errMsg)
 
     if conf.proxyCred:
         _ = re.search("^(.*?):(.*?)$", conf.proxyCred)
         if not _:
-            errMsg = "Proxy authentication credentials "
-            errMsg += "value must be in format username:password"
+            errMsg = u"代理身份验证信息"
+            errMsg += u"的格式必须为 username:password"
             raise SqlmapSyntaxException(errMsg)
         else:
             username = _.group(1)
@@ -1096,7 +1086,7 @@ def _setSafeUrl():
             conf.safUrl = "http://" + conf.safUrl
 
     if conf.saFreq <= 0:
-        errMsg = "please provide a valid value (>0) for safe frequency (--safe-freq) while using safe URL feature"
+        errMsg = u"使用安全URL特性时，请提供有效的安全频率(--safe-freq)值(>0)"
         raise SqlmapSyntaxException(errMsg)
 
 def _setPrefixSuffix():
@@ -1149,18 +1139,18 @@ def _setHTTPAuthentication():
         return
 
     elif conf.authType and not conf.authCred and not conf.authPrivate:
-        errMsg = "you specified the HTTP authentication type, but "
-        errMsg += "did not provide the credentials"
+        errMsg = u"指定了HTTP验证类型，"
+        errMsg += u"却未指定身份验证信息"
         raise SqlmapSyntaxException(errMsg)
 
     elif not conf.authType and conf.authCred:
-        errMsg = "you specified the HTTP authentication credentials, "
-        errMsg += "but did not provide the type"
+        errMsg = u"指定了HTTP身份验证信息,"
+        errMsg += u"却为指定验证类型"
         raise SqlmapSyntaxException(errMsg)
 
     elif conf.authType.lower() not in (AUTH_TYPE.BASIC, AUTH_TYPE.DIGEST, AUTH_TYPE.NTLM, AUTH_TYPE.PKI):
-        errMsg = "HTTP authentication type value must be "
-        errMsg += "Basic, Digest, NTLM or PKI"
+        errMsg = u"HTTP 验证类型必须为 "
+        errMsg += u"Basic, Digest, NTLM 或 PKI"
         raise SqlmapSyntaxException(errMsg)
 
     if not conf.authPrivate:
@@ -1171,15 +1161,15 @@ def _setHTTPAuthentication():
 
         if aTypeLower in (AUTH_TYPE.BASIC, AUTH_TYPE.DIGEST):
             regExp = "^(.*?):(.*?)$"
-            errMsg = "HTTP %s authentication credentials " % aTypeLower
-            errMsg += "value must be in format 'username:password'"
+            errMsg = u"HTTP %s 验证信息" % aTypeLower
+            errMsg += u"的格式必须为 'username:password'"
         elif aTypeLower == AUTH_TYPE.NTLM:
             regExp = "^(.*\\\\.*):(.*?)$"
-            errMsg = "HTTP NTLM authentication credentials value must "
-            errMsg += "be in format 'DOMAIN\username:password'"
+            errMsg = u"HTTP NTLM 身份验证信息"
+            errMsg += u"的格式必须为 'DOMAIN\\username:password'"
         elif aTypeLower == AUTH_TYPE.PKI:
-            errMsg = "HTTP PKI authentication require "
-            errMsg += "usage of option `--auth-pki`"
+            errMsg = u"HTTP PKI 身份验证需同时使用"
+            errMsg += u"选项 `--auth-pki`"
             raise SqlmapSyntaxException(errMsg)
 
         aCredRegExp = re.search(regExp, conf.authCred)
@@ -1204,9 +1194,9 @@ def _setHTTPAuthentication():
             try:
                 from ntlm import HTTPNtlmAuthHandler
             except ImportError:
-                errMsg = "sqlmap requires Python NTLM third-party library "
-                errMsg += "in order to authenticate via NTLM, "
-                errMsg += "http://code.google.com/p/python-ntlm/"
+                errMsg = u"sqlmap 需要 Python NTLM 第三方库，"
+                errMsg += u"以进行NTLM身份验证, "
+                errMsg += u"http://code.google.com/p/python-ntlm/"
                 raise SqlmapMissingDependence(errMsg)
 
             authHandler = HTTPNtlmAuthHandler.HTTPNtlmAuthHandler(kb.passwordMgr)
@@ -1242,7 +1232,7 @@ def _setHTTPExtraHeaders():
                 if header and value:
                     conf.httpHeaders.append((header, value))
             else:
-                errMsg = "invalid header value: %s. Valid header format is 'name:value'" % repr(headerValue).lstrip('u')
+                errMsg = u"无效的header值: %s. 有效的header格式为 'name:value'" % repr(headerValue).lstrip('u')
                 raise SqlmapSyntaxException(errMsg)
 
     elif not conf.httpHeaders or len(conf.httpHeaders) == 1:
@@ -1284,8 +1274,7 @@ def _setHTTPUserAgent():
     """
 
     if conf.mobile:
-        message = "which smartphone do you want sqlmap to imitate "
-        message += "through HTTP User-Agent header?\n"
+        message = u"你想让 sqlmap 通过改变 HTTP User-Agent header 模拟哪种手机?\n"
         items = sorted(getPublicTypeMembers(MOBILES, True))
 
         for count in xrange(len(items)):
@@ -1327,8 +1316,7 @@ def _setHTTPUserAgent():
             try:
                 kb.userAgents = getFileItems(paths.USER_AGENTS)
             except IOError:
-                warnMsg = "unable to read HTTP User-Agent header "
-                warnMsg += "file '%s'" % paths.USER_AGENTS
+                warnMsg = u"无法从文件 '%s' 中读取 HTTP User-Agent header" % paths.USER_AGENTS
                 logger.warn(warnMsg)
 
                 conf.httpHeaders.append((HTTP_HEADER.USER_AGENT, _defaultHTTPUserAgent()))
@@ -1374,8 +1362,8 @@ def _setHTTPTimeout():
         conf.timeout = float(conf.timeout)
 
         if conf.timeout < 3.0:
-            warnMsg = "the minimum HTTP timeout is 3 seconds, sqlmap "
-            warnMsg += "will going to reset it"
+            warnMsg = u"最小HTTP超时时间是 3 秒, sqlmap "
+            warnMsg += u"将自动重设该值"
             logger.warn(warnMsg)
 
             conf.timeout = 3.0
@@ -1481,9 +1469,9 @@ def _cleanupOptions():
             conf.timeSec = 2 * conf.timeSec
             kb.adjustTimeDelay = ADJUST_TIME_DELAY.DISABLE
 
-            warnMsg = "increasing default value for "
-            warnMsg += "option '--time-sec' to %d because " % conf.timeSec
-            warnMsg += "switch '--tor' was provided"
+            warnMsg = u"由于指定了选项开关 '--tor'，"
+            warnMsg += u"增加"
+            warnMsg += u"选项 '--time-sec' 至 %d ，" % conf.timeSec
             logger.warn(warnMsg)
     else:
         kb.adjustTimeDelay = ADJUST_TIME_DELAY.DISABLE
@@ -1735,17 +1723,17 @@ def _useWizardInterface():
 
     while True:
         while not conf.url:
-            message = "Please enter full target URL (-u): "
+            message = u"请提供完整的目标URL (-u): "
             conf.url = readInput(message, default=None)
 
-        message = "POST data (--data) [Enter for None]: "
+        message = u"POST 数据 (--data) [回车则为空]: "
         conf.data = readInput(message, default=None)
 
         if filter(lambda _: '=' in unicode(_), (conf.url, conf.data)) or '*' in conf.url:
             break
         else:
-            warnMsg = "no GET and/or POST parameter(s) found for testing "
-            warnMsg += "(e.g. GET parameter 'id' in 'http://www.site.com/vuln.php?id=1')"
+            warnMsg = u"未发现可测试的 GET 或 POST 参数 "
+            warnMsg += u"(e.g. GET parameter 'id' in 'http://www.site.com/vuln.php?id=1')"
             logger.critical(warnMsg)
 
             if conf.crawlDepth or conf.forms:
@@ -1756,8 +1744,8 @@ def _useWizardInterface():
     choice = None
 
     while choice is None or choice not in ("", "1", "2", "3"):
-        message = "Injection difficulty (--level/--risk). Please choose:\n"
-        message += "[1] Normal (default)\n[2] Medium\n[3] Hard"
+        message = u"注入难度 (--level/--risk). 请选择:\n"
+        message += u"[1] 正常 (default)\n[2] 中等\n[3] 困难"
         choice = readInput(message, default='1')
 
         if choice == '2':
@@ -1774,8 +1762,8 @@ def _useWizardInterface():
         choice = None
 
         while choice is None or choice not in ("", "1", "2", "3"):
-            message = "Enumeration (--banner/--current-user/etc). Please choose:\n"
-            message += "[1] Basic (default)\n[2] Intermediate\n[3] All"
+            message = "信息枚举 (--banner/--current-user/etc). 请选择:\n"
+            message += "[1] 基本 (default)\n[2] 适中\n[3] 全部"
             choice = readInput(message, default='1')
 
             if choice == '2':
@@ -1958,14 +1946,12 @@ def _setDNSServer():
             conf.dnsServer = DNSServer()
             conf.dnsServer.run()
         except socket.error, msg:
-            errMsg = "there was an error while setting up "
-            errMsg += "DNS server instance ('%s')" % msg
+            errMsg = u"当建立DNS服务时遇到错误 ('%s')" % msg
             raise SqlmapGenericException(errMsg)
     else:
-        errMsg = "you need to run sqlmap as an administrator "
-        errMsg += "if you want to perform a DNS data exfiltration attack "
-        errMsg += "as it will need to listen on privileged UDP port 53 "
-        errMsg += "for incoming address resolution attempts"
+        errMsg = u"若想进行DNS数据渗漏攻击，"
+        errMsg += u"请以管理员身份运行sqlmap，"
+        errMsg += u"从而能够获取监听 UDP 53 的权限 "
         raise SqlmapMissingPrivileges(errMsg)
 
 def _setProxyList():
@@ -2006,24 +1992,21 @@ def _setTorHttpProxySettings():
     if found:
         conf.proxy = "http://%s:%d" % (LOCALHOST, found)
     else:
-        errMsg = "can't establish connection with the Tor proxy. "
-        errMsg += "Please make sure that you have Vidalia, Privoxy or "
-        errMsg += "Polipo bundle installed for you to be able to "
-        errMsg += "successfully use switch '--tor' "
+        errMsg = u"无法与 Tor 代理建立连接. "
+        errMsg += u"请确保安装了 Vidalia, Privoxy 或 "
+        errMsg += u"Polipo 从而"
+        errMsg += u"可成功使用选项 '--tor'. "
 
         if IS_WIN:
-            errMsg += "(e.g. https://www.torproject.org/projects/vidalia.html.en)"
+            errMsg += u"(e.g. https://www.torproject.org/projects/vidalia.html.en)"
         else:
-            errMsg += "(e.g. http://www.coresec.org/2011/04/24/sqlmap-with-tor/)"
+            errMsg += u"(e.g. http://www.coresec.org/2011/04/24/sqlmap-with-tor/)"
 
         raise SqlmapConnectionException(errMsg)
 
     if not conf.checkTor:
-        warnMsg = "use switch '--check-tor' at "
-        warnMsg += "your own convenience when accessing "
-        warnMsg += "Tor anonymizing network because of "
-        warnMsg += "known issues with default settings of various 'bundles' "
-        warnMsg += "(e.g. Vidalia)"
+        warnMsg = u"可使用选项 '--check-tor' 来"
+        warnMsg += u"检查 Tor 匿名网络的已知问题"
         logger.warn(warnMsg)
 
 def _setTorSocksProxySettings():
@@ -2043,7 +2026,7 @@ def _checkTor():
 
     page, _, _ = Request.getPage(url="https://check.torproject.org/", raise404=False)
     if not page or 'Congratulations' not in page:
-        errMsg = "it seems that Tor is not properly set. Please try using options '--tor-type' and/or '--tor-port'"
+        errMsg = u"看来 Tor 并未正确设置. 请尝试使用选项 '--tor-type' and/or '--tor-port'"
         raise SqlmapConnectionException(errMsg)
     else:
         infoMsg = "Tor is properly being used"
@@ -2051,175 +2034,175 @@ def _checkTor():
 
 def _basicOptionValidation():
     if conf.limitStart is not None and not (isinstance(conf.limitStart, int) and conf.limitStart > 0):
-        errMsg = "value for option '--start' (limitStart) must be an integer value greater than zero (>0)"
+        errMsg = u"选项 '--start' (limitStart) 的值必须为大于零的整数 (>0)"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.limitStop is not None and not (isinstance(conf.limitStop, int) and conf.limitStop > 0):
-        errMsg = "value for option '--stop' (limitStop) must be an integer value greater than zero (>0)"
+        errMsg = u"选项 '--stop' (limitStop) 的值必须为大于零的整数 (>0)"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.level is not None and not (isinstance(conf.level, int) and conf.level >= 1 and conf.level <= 5):
-        errMsg = "value for option '--level' must be an integer value from range [1, 5]"
+        errMsg = u"选项 '--level' 的值必须为范围为 [1, 5] 的整数"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.risk is not None and not (isinstance(conf.risk, int) and conf.risk >= 1 and conf.risk <= 3):
-        errMsg = "value for option '--risk' must be an integer value from range [1, 3]"
+        errMsg = u"选项 '--risk' 的值必须为范围为 [1, 3] 的整数"
         raise SqlmapSyntaxException(errMsg)
 
     if isinstance(conf.limitStart, int) and conf.limitStart > 0 and \
        isinstance(conf.limitStop, int) and conf.limitStop < conf.limitStart:
-        errMsg = "value for option '--start' (limitStart) must be smaller or equal than value for --stop (limitStop) option"
+        errMsg = u"选项 '--start' (limitStart) 的值必须小于或等于选项 --stop (limitStop) 的值"
         raise SqlmapSyntaxException(errMsg)
 
     if isinstance(conf.firstChar, int) and conf.firstChar > 0 and \
        isinstance(conf.lastChar, int) and conf.lastChar < conf.firstChar:
-        errMsg = "value for option '--first' (firstChar) must be smaller than or equal to value for --last (lastChar) option"
+        errMsg = u"选项 '--first' (firstChar) 的值为小于或等于选项 --last (lastChar) 的值"
         raise SqlmapSyntaxException(errMsg)
 
     if isinstance(conf.cpuThrottle, int) and (conf.cpuThrottle > 100 or conf.cpuThrottle < 0):
-        errMsg = "value for option '--cpu-throttle' (cpuThrottle) must be in range [0,100]"
+        errMsg = u"选项 '--cpu-throttle' (cpuThrottle) 的值必须在 [0,100] 范围内"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.textOnly and conf.nullConnection:
-        errMsg = "switch '--text-only' is incompatible with switch '--null-connection'"
+        errMsg = u"选项 '--text-only' 与选项 '--null-connection' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.direct and conf.url:
-        errMsg = "option '-d' is incompatible with option '-u' ('--url')"
+        errMsg = u"选项 '-d' 与选项 '-u' ('--url') 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.titles and conf.nullConnection:
-        errMsg = "switch '--titles' is incompatible with switch '--null-connection'"
+        errMsg = u"选项 '--titles' 与选项 '--null-connection' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.data and conf.nullConnection:
-        errMsg = "option '--data' is incompatible with switch '--null-connection'"
+        errMsg = u"选项 '--data' 与选项 '--null-connection' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.string and conf.nullConnection:
-        errMsg = "option '--string' is incompatible with switch '--null-connection'"
+        errMsg = u"选项 '--string' 与选项 '--null-connection' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.notString and conf.nullConnection:
-        errMsg = "option '--not-string' is incompatible with switch '--null-connection'"
+        errMsg = u"选项 '--not-string' 与选项 '--null-connection' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.noCast and conf.hexConvert:
-        errMsg = "switch '--no-cast' is incompatible with switch '--hex'"
+        errMsg = u"选项 '--no-cast' 与选项 '--hex' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.string and conf.notString:
-        errMsg = "option '--string' is incompatible with switch '--not-string'"
+        errMsg = u"选项 '--string' 与选项 '--not-string' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.regexp and conf.nullConnection:
-        errMsg = "option '--regexp' is incompatible with switch '--null-connection'"
+        errMsg = u"选项 '--regexp' 与选项 '--null-connection' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.dumpTable and conf.dumpAll:
-        errMsg = "switch '--dump' is incompatible with switch '--dump-all'"
+        errMsg = u"选项 '--dump' 与选项 '--dump-all' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.predictOutput and (conf.threads > 1 or conf.optimize):
-        errMsg = "switch '--predict-output' is incompatible with option '--threads' and switch '-o'"
+        errMsg = u"选项 '--predict-output' 与选项 '--threads' and switch '-o' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.threads > MAX_NUMBER_OF_THREADS:
-        errMsg = "maximum number of used threads is %d avoiding potential connection issues" % MAX_NUMBER_OF_THREADS
+        errMsg = u"为了避免连接问题，使用的线程数的最大值为 %d" % MAX_NUMBER_OF_THREADS
         raise SqlmapSyntaxException(errMsg)
 
     if conf.forms and not any((conf.url, conf.bulkFile)):
-        errMsg = "switch '--forms' requires usage of option '-u' ('--url') or '-m'"
+        errMsg = u"选项 '--forms' 需要同时使用选项 '-u' ('--url') 或 '-m'"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.requestFile and conf.url and conf.url != DUMMY_URL:
-        errMsg = "option '-r' is incompatible with option '-u' ('--url')"
+        errMsg = u"选项 '-r' 与选项 '-u' ('--url') 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.direct and conf.proxy:
-        errMsg = "option '-d' is incompatible with option '--proxy'"
+        errMsg = u"选项 '-d' 与选项 '--proxy' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.direct and conf.tor:
-        errMsg = "option '-d' is incompatible with switch '--tor'"
+        errMsg = u"选项 '-d' 与选项 '--tor' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if not conf.tech:
-        errMsg = "option '--technique' can't be empty"
+        errMsg = u"选项 '--technique' 不能为空"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.tor and conf.ignoreProxy:
-        errMsg = "switch '--tor' is incompatible with switch '--ignore-proxy'"
+        errMsg = u"选项 '--tor' 与选项 '--ignore-proxy' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.tor and conf.proxy:
-        errMsg = "switch '--tor' is incompatible with option '--proxy'"
+        errMsg = u"选项 '--tor' 与选项 '--proxy' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.checkTor and not any((conf.tor, conf.proxy)):
-        errMsg = "switch '--check-tor' requires usage of switch '--tor' (or option '--proxy' with HTTP proxy address using Tor)"
+        errMsg = u"选项 '--check-tor' 需要同时使用选项 '--tor' (或用选项 '--proxy' 指定Tor使用的HTTP代理地址)"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.torPort is not None and not (isinstance(conf.torPort, int) and conf.torPort > 0):
-        errMsg = "value for option '--tor-port' must be a positive integer"
+        errMsg = u"选项 '--tor-port' 的值必须为正整数"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.torType not in getPublicTypeMembers(PROXY_TYPE, True):
-        errMsg = "option '--tor-type' accepts one of following values: %s" % ", ".join(getPublicTypeMembers(PROXY_TYPE, True))
+        errMsg = u"选项 '--tor-type' 接受下列值中的一个: %s" % ", ".join(getPublicTypeMembers(PROXY_TYPE, True))
         raise SqlmapSyntaxException(errMsg)
 
     if conf.dumpFormat not in getPublicTypeMembers(DUMP_FORMAT, True):
-        errMsg = "option '--dump-format' accepts one of following values: %s" % ", ".join(getPublicTypeMembers(DUMP_FORMAT, True))
+        errMsg = u"选项 '--dump-format' 接受下列值中的一个: %s" % ", ".join(getPublicTypeMembers(DUMP_FORMAT, True))
         raise SqlmapSyntaxException(errMsg)
 
     if conf.skip and conf.testParameter:
-        errMsg = "option '--skip' is incompatible with option '-p'"
+        errMsg = u"选项 '--skip' 与选项 '-p' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.mobile and conf.agent:
-        errMsg = "switch '--mobile' is incompatible with option '--user-agent'"
+        errMsg = u"选项 '--mobile' 与选项 '--user-agent' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.proxy and conf.ignoreProxy:
-        errMsg = "option '--proxy' is incompatible with switch '--ignore-proxy'"
+        errMsg = u"选项 '--proxy' 与选项 '--ignore-proxy' 不兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.forms and any([conf.logFile, conf.direct, conf.requestFile, conf.googleDork]):
-        errMsg = "switch '--forms' is compatible only with options '-u' ('--url') and '-m'"
+        errMsg = u"选项 '--forms' 与选项 '-u' ('--url') 和 '-m' 相兼容"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.timeSec < 1:
-        errMsg = "value for option '--time-sec' must be a positive integer"
+        errMsg = u"选项 '--time-sec' 的值必须为正整数"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.uChar and not re.match(UNION_CHAR_REGEX, conf.uChar):
-        errMsg = "value for option '--union-char' must be an alpha-numeric value (e.g. 1)"
+        errMsg = u"选项 '--union-char' 的值必须为一个数字 (e.g. 1)"
         raise SqlmapSyntaxException(errMsg)
 
     if isinstance(conf.uCols, basestring):
         if not conf.uCols.isdigit() and ("-" not in conf.uCols or len(conf.uCols.split("-")) != 2):
-            errMsg = "value for option '--union-cols' must be a range with hyphon "
-            errMsg += "(e.g. 1-10) or integer value (e.g. 5)"
+            errMsg = u"选项 '--union-cols' 的值必须为一个带破折号的范围"
+            errMsg += u"(e.g. 1-10) 或一个整数值 (e.g. 5)"
             raise SqlmapSyntaxException(errMsg)
 
     if conf.dbmsCred and ':' not in conf.dbmsCred:
-        errMsg = "value for option '--dbms-cred' must be in "
-        errMsg += "format <username>:<password> (e.g. \"root:pass\")"
+        errMsg = u"选项 '--dbms-cred' 的格式必须为"
+        errMsg += u" <username>:<password> (e.g. \"root:pass\")"
         raise SqlmapSyntaxException(errMsg)
 
     if conf.charset:
         _ = checkCharEncoding(conf.charset, False)
         if _ is None:
-            errMsg = "unknown charset '%s'. Please visit " % conf.charset
-            errMsg += "'%s' to get the full list of " % CODECS_LIST_PAGE
-            errMsg += "supported charsets"
+            errMsg = u"未知的字符集 '%s'. 请访问 " % conf.charset
+            errMsg += u"'%s' 获取" % CODECS_LIST_PAGE
+            errMsg += u"支持的字符集列表"
             raise SqlmapSyntaxException(errMsg)
         else:
             conf.charset = _
 
     if conf.loadCookies:
         if not os.path.exists(conf.loadCookies):
-            errMsg = "cookies file '%s' does not exist" % conf.loadCookies
+            errMsg = u"cookies 文件 '%s' 不存在" % conf.loadCookies
             raise SqlmapFilePathException(errMsg)
 
 def _resolveCrossReferences():
