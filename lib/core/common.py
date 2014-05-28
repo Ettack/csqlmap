@@ -572,7 +572,7 @@ def paramToDict(place, parameters=None):
                         warnMsg += "so sqlmap could be able to run properly"
                         logger.warn(warnMsg)
 
-                        message = "Are you sure you want to continue? [y/N] "
+                        message = "are you sure you want to continue? [y/N] "
                         test = readInput(message, default="N")
                         if test[0] not in ("y", "Y"):
                             raise SqlmapSilentQuitException
@@ -918,7 +918,7 @@ def readInput(message, default=None, checkBatch=True):
 
     return retVal
 
-def randomRange(start=0, stop=1000):
+def randomRange(start=0, stop=1000, seed=None):
     """
     Returns random integer value in given range
 
@@ -927,9 +927,11 @@ def randomRange(start=0, stop=1000):
     423
     """
 
-    return int(random.randint(start, stop))
+    randint = random.WichmannHill(seed).randint if seed is not None else random.randint
 
-def randomInt(length=4):
+    return int(randint(start, stop))
+
+def randomInt(length=4, seed=None):
     """
     Returns random integer value with provided number of digits
 
@@ -938,9 +940,11 @@ def randomInt(length=4):
     874254
     """
 
-    return int("".join(random.choice(string.digits if _ != 0 else string.digits.replace('0', '')) for _ in xrange(0, length)))
+    choice = random.WichmannHill(seed).choice if seed is not None else random.choice
 
-def randomStr(length=4, lowercase=False, alphabet=None):
+    return int("".join(choice(string.digits if _ != 0 else string.digits.replace('0', '')) for _ in xrange(0, length)))
+
+def randomStr(length=4, lowercase=False, alphabet=None, seed=None):
     """
     Returns random string value with provided number of characters
 
@@ -949,12 +953,14 @@ def randomStr(length=4, lowercase=False, alphabet=None):
     'RNvnAv'
     """
 
+    choice = random.WichmannHill(seed).choice if seed is not None else random.choice
+
     if alphabet:
-        retVal = "".join(random.choice(alphabet) for _ in xrange(0, length))
+        retVal = "".join(choice(alphabet) for _ in xrange(0, length))
     elif lowercase:
-        retVal = "".join(random.choice(string.ascii_lowercase) for _ in xrange(0, length))
+        retVal = "".join(choice(string.ascii_lowercase) for _ in xrange(0, length))
     else:
-        retVal = "".join(random.choice(string.ascii_letters) for _ in xrange(0, length))
+        retVal = "".join(choice(string.ascii_letters) for _ in xrange(0, length))
 
     return retVal
 
@@ -1995,7 +2001,10 @@ def getUnicode(value, encoding=None, system=False, noneToNull=False):
                 except UnicodeDecodeError, ex:
                     value = value[:ex.start] + "".join(INVALID_UNICODE_CHAR_FORMAT % ord(_) for _ in value[ex.start:ex.end]) + value[ex.end:]
         else:
-            return unicode(value)  # encoding ignored for non-basestring instances
+            try:
+                return unicode(value)
+            except UnicodeDecodeError:
+                return unicode(str(value), errors="ignore")  # encoding ignored for non-basestring instances
     else:
         try:
             return getUnicode(value, sys.getfilesystemencoding() or sys.stdin.encoding)
@@ -2217,6 +2226,12 @@ def urlencode(value, safe="%&=-_", convall=False, limit=False, spaceplus=False):
     result = None if value is None else ""
 
     if value:
+        if Backend.isDbms(DBMS.MSSQL) and not kb.tamperFunctions and any(ord(_) > 255 for _ in value):
+            warnMsg = "if you experience problems with "
+            warnMsg += "non-ASCII identifier names "
+            warnMsg += "you are advised to rerun with '--tamper=charunicodeencode'"
+            singleTimeWarnMessage(warnMsg)
+
         if convall or safe is None:
             safe = ""
 
